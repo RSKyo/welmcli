@@ -37,7 +37,7 @@ https://www.google.com/chrome/
 ### Quick install
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/RSKyo/clichatgpt/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/RSKyo/clichatgpt/main/install.sh?nocache=$(date +%s) | bash
 ```
 
 After installation, the command will be available as:

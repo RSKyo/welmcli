@@ -45,7 +45,7 @@ echo "Installing ${BIN_NAME}..."
 
 echo "Downloading binary..."
 
-if ! curl -fsSL "$URL" -o "$TMP_FILE"; then
+if ! curl -fsSL "$URL?nocache=$(date +%s)" -o "$TMP_FILE"; then
   echo "error: failed to download ${BIN_NAME}" >&2
   exit 1
 fi
