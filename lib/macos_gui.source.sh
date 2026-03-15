@@ -395,7 +395,7 @@ EOF
 chrome_tab_open() {
   local url="${1:-}"
   local sep=$'\x1f'
-  local idx
+  local url_idx active_idx
 
   if ! win_exists "Google Chrome"; then
     open -a "Google Chrome" "$url" || return 1
@@ -410,10 +410,13 @@ chrome_tab_open() {
     fi
   fi
 
-  idx="$(chrome_tab_index_by_url "$url")"
-
-  if [[ -n "$idx" ]]; then
-    chrome_tab_activate "$idx" || return 1
+  url_idx="$(chrome_tab_index_by_url "$url")"
+  active_idx="$(chrome_tab_active_index)"
+  
+  if [[ -n "$url_idx" ]]; then
+    if [[ "$url_idx" != "$active_idx" ]]; then
+      chrome_tab_activate "$url_idx" || return 1
+    fi
   else
     chrome_tab_new "$url" || return 1
   fi
