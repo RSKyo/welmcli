@@ -677,25 +677,51 @@ clichatgpt_talk() {
   local text
   text="$(cat)"
 
-  chrome_chatgpt_input "$text" || return 1
-  chrome_chatgpt_submit || return 1
+  chrome_chatgpt_input "$text" || {
+    loge "failed to input prompt"
+    return 1
+  }
+
+  chrome_chatgpt_submit || {
+    loge "failed to submit message"
+    return 1
+  }
+
   sleep 1
 
-  chrome_chatgpt_wait_reply_complete || return 1
+  chrome_chatgpt_wait_reply_complete || {
+    loge "chatgpt reply timeout (${CLICHATGPT_CHROME_CHATGPT_WAIT_REPLY_COMPLETE_TIMEOUT}s)"
+    return 1
+  }
   chrome_chatgpt_scroll_last_copy_button_top
 
+  printf '' | pbcopy
   app_activate "Google Chrome"
-  sleep 0.1
+
+  local xy
+  xy="$(cliclick p)"
+
   cliclick c:"$CLICHATGPT_COPY_XY"
-  sleep 0.1
+  sleep 0.2
+
+  [[ -n "$xy" ]] && cliclick m:"$xy"
 
   app_activate "Terminal"
-  result="$(pbpaste)"
+
+  local result
+  for ((i=0;i<20;i++)); do
+    result="$(pbpaste)"
+    [[ -n "$result" ]] && break
+    sleep 0.1
+  done
+
   if [[ -n "$result" ]]; then
     printf '%s\n' "$result"
-  else
-    loge "无法获取"
+    return 0
   fi
+
+  loge "failed to copy reply: clipboard empty (xy=${CLICHATGPT_COPY_XY})"
+  return 1
 }
 
 chrome_chatgpt_input() {
