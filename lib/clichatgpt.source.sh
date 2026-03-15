@@ -17,6 +17,7 @@ __CLICHATGPT_SOURCED=1
 : "${CLICHATGPT_CHROME_CHATGPT_WAIT_REPLY_SLEEP:=0.2}"
 : "${CLICHATGPT_CHROME_CHATGPT_WAIT_REPLY_COMPLETE_TIMEOUT:=60}"
 : "${CLICHATGPT_CHROME_CHATGPT_WAIT_REPLY_COMPLETE_SLEEP:=1}"
+: "${CLICHATGPT_CHROME_CHATGPT_WAIT_REPLY_COMPLETE_THRESHOLD:=2}"
 
 # --- Public API --------------------------------------------------------------
 
@@ -102,10 +103,10 @@ EOF
 
 chrome_chatgpt_wait_reply() {
   local old_num="$1"
+  local timeout="$CLICHATGPT_CHROME_CHATGPT_WAIT_REPLY_TIMEOUT"
+  local sleep="$CLICHATGPT_CHROME_CHATGPT_WAIT_REPLY_SLEEP"
   local num
-  local start
-
-  start=$SECONDS
+  local start=$SECONDS
 
   while :; do
     num="$(chrome_chatgpt_reply_num)" || num=
@@ -114,35 +115,39 @@ chrome_chatgpt_wait_reply() {
       return 0
     fi
 
-    if(( SECONDS - start >= CLICHATGPT_CHROME_CHATGPT_WAIT_REPLY_TIMEOUT )); then
-      loge "wait reply timeout (${CLICHATGPT_CHROME_CHATGPT_WAIT_REPLY_TIMEOUT}s)"
+    if(( SECONDS - start >= timeout )); then
+      loge "wait reply timeout (${timeout}s)"
      return 1
     fi
 
-    sleep "$CLICHATGPT_CHROME_CHATGPT_WAIT_REPLY_SLEEP"
+    sleep "$sleep"
   done
 }
 
 chrome_chatgpt_wait_reply_complete() {
-  local last prev=""
-  local start
-
-  start=$SECONDS
+  local threshold="$CLICHATGPT_CHROME_CHATGPT_WAIT_REPLY_COMPLETE_THRESHOLD"
+  local timeout="$CLICHATGPT_CHROME_CHATGPT_WAIT_REPLY_COMPLETE_TIMEOUT"
+  local sleep="$CLICHATGPT_CHROME_CHATGPT_WAIT_REPLY_COMPLETE_SLEEP"
+  local reply prev_reply=""
+  local stable=0
+  local start=$SECONDS
 
   while :; do
-    last="$(chrome_chatgpt_last_reply)" || last=""
+    reply="$(chrome_chatgpt_last_reply)" || reply=""
 
-    if [[ -n "$last" && "$last" == "$prev" ]]; then
-      return 0
+    if [[ -n "$reply" && "$reply" == "$prev_reply" ]]; then
+      (( stable++ ))
+      (( stable >= threshold )) && return 0
+    else
+      stable=0
+      prev_reply="$reply"
     fi
 
-    prev="$last"
-
-    (( SECONDS - start >= CLICHATGPT_CHROME_CHATGPT_WAIT_REPLY_COMPLETE_TIMEOUT )) && {
-      loge "wait reply complete timeout (${CLICHATGPT_CHROME_CHATGPT_WAIT_REPLY_COMPLETE_TIMEOUT}s)"
+    if(( SECONDS - start >= timeout )); then
+      loge "wait reply complete timeout (${timeout}s)"
       return 1
-    }
+    fi
 
-    sleep "$CLICHATGPT_CHROME_CHATGPT_WAIT_REPLY_COMPLETE_SLEEP"
+    sleep "$sleep"
   done
 }

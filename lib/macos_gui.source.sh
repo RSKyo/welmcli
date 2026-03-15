@@ -283,8 +283,7 @@ chrome_tabs_wait_stable() {
   local threshold="$CLICHATGPT_CHROME_TABS_WAIT_STABLE_THRESHOLD"
   local timeout="$CLICHATGPT_CHROME_TABS_WAIT_STABLE_TIMEOUT"
   local sleep="$CLICHATGPT_CHROME_TABS_WAIT_STABLE_SLEEP"
-  local prev_count=-1
-  local count
+  local count prev_count=-1
   local stable=0
   local start=$SECONDS
 
