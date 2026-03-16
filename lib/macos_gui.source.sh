@@ -394,8 +394,6 @@ EOF
 
 chrome_tab_open() {
   local url="${1:-}"
-  local sep=$'\x1f'
-  local url_idx active_idx
 
   if ! win_exists "Google Chrome"; then
     open -a "Google Chrome" "$url" || return 1
@@ -410,6 +408,7 @@ chrome_tab_open() {
     fi
   fi
 
+  local url_idx active_idx
   url_idx="$(chrome_tab_index_by_url "$url")"
   active_idx="$(chrome_tab_active_index)"
   
@@ -419,6 +418,14 @@ chrome_tab_open() {
     fi
   else
     chrome_tab_new "$url" || return 1
+    local count
+    count="$(chrome_tabs_wait_stable)" || return 1
+    if chrome_tab_wait_loaded "$count"; then
+      return 0
+    else
+      loge "chrome tab failed to load: idx=$count url=$url"
+      return 1
+    fi
   fi
 }
 

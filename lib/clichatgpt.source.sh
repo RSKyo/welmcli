@@ -19,6 +19,9 @@ __CLICHATGPT_SOURCED=1
 # --- Public API --------------------------------------------------------------
 
 clichatgpt_talk() {
+  chrome_tab_open "$CLICHATGPT_URL" || return 1
+  app_activate "Terminal"
+
   local text
 
   if [[ $# -gt 0 ]]; then
@@ -79,7 +82,7 @@ clichatgpt_talk() {
     return 0
   fi
 
-  loge "copy failed: clipboard empty (xy=$CLICHATGPT_COPY_XY)"
+  loge "copy failed: clipboard empty (xy=$copy_button_xy)"
   return 1
 }
 
