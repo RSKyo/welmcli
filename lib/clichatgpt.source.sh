@@ -53,10 +53,12 @@ clichatgpt_talk() {
 
   # 激活 chrome
   app_activate "Google Chrome"
-  printf '' | pbcopy
+  
 
-  local p
-  p="$(cliclick p)"
+  local old_p old_pbpaste
+  old_p="$(cliclick p)"
+  old_pbpaste="$(pbpaste)"
+  printf '' | pbcopy
 
   # 计算 copy button 位置
   local copy_button_xy
@@ -66,7 +68,7 @@ clichatgpt_talk() {
   cliclick c:"$copy_button_xy"
   sleep 0.2
 
-  cliclick m:"$p"
+  cliclick m:"$old_p"
 
   app_activate "Terminal"
 
@@ -76,6 +78,8 @@ clichatgpt_talk() {
     [[ -n "$result" ]] && break
     sleep 0.05
   done
+
+  printf "$old_pbpaste" | pbcopy
 
   if [[ -n "$result" ]]; then
     printf '%s\n' "$result"
@@ -88,6 +92,19 @@ clichatgpt_talk() {
 
 chrome_chatgpt_input() {
   local text="$1"
+
+  js_escape() {
+    local s="$1"
+    s=${s//\\/\\\\}
+    s=${s//\'/\\\'}
+    s=${s//$'\n'/\\n}
+    s=${s//$'\r'/\\r}
+    s=${s//$'\t'/\\t}
+    printf '%s' "$s"
+  }
+
+  text="$(js_escape "$text")"
+
   local encoded
 
   encoded="$(printf '%s' "$text" | base64)"
@@ -100,9 +117,8 @@ tell application "Google Chrome"
         var e=document.querySelector('[contenteditable]');
         if(!e) return;
 
-        var text=atob('$encoded');
         e.focus();
-        e.innerText=text;
+        e.innerText='$text';
         e.dispatchEvent(new Event('input',{bubbles:true}));
       })();
     "
