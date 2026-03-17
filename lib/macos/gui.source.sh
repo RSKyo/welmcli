@@ -7,154 +7,82 @@
 [[ -n "${__MACOS_GUI_SOURCED+x}" ]] && return 0
 __MACOS_GUI_SOURCED=1
 
-# --- Script Templates --------------------------------------------------------
 
-readonly __SCRIPT_SCREEN_WORKAREA_JXA=\
-'ObjC.import("AppKit")
 
-function run() {
-  const screen = $.NSScreen.mainScreen
-  const frame = screen.frame
-  const visible = screen.visibleFrame
-
-  const x = Math.round(visible.origin.x)
-  const y = Math.round(frame.size.height - visible.origin.y - visible.size.height)
-  const w = Math.round(visible.size.width)
-  const h = Math.round(visible.size.height)
-
-  return [x, y, w, h].join(" ")
-}'
-
-readonly __SCRIPT_FRONT_APP=\
-'tell application "System Events"
-  name of first process whose frontmost is true
-end tell'
-
-# args: $1=app
-readonly __SCRIPT_APP_FOCUS=\
-'tell application "%s" to activate'
-
-# args: $1=app
-readonly __SCRIPT_WIN_UNMINIMIZE=\
-'tell application "System Events" to tell process "%s"
-  try
-    if (count of windows) > 0 then
-      tell window 1
-        if value of attribute "AXMinimized" then
-          set value of attribute "AXMinimized" to false
-        end if
-      end tell
-    end if
-  end try
-end tell'
-
-# args: $1=app
-readonly __SCRIPT_WIN_FOCUS=\
-'tell application "System Events" to tell process "%s"
-  if (count of windows) is 0 then return
-  set frontmost to true
-end tell'
-
-# args: $1=app
-readonly __SCRIPT_WIN_COUNT=\
-'tell application "System Events" to tell process "%s"
-  if it is running then
-    return (count of windows)
-  else
-    return 0
-  end if
-end tell'
-
-# args: $1=app $2=w $3=h
-readonly __SCRIPT_WIN_RESIZE=\
-'tell application "System Events" to tell process "%s"
-  if (count of windows) is 0 then return
-  set size of front window to {%s, %s}
-end tell'
-
-# args: $1=app $2=l $3=t
-readonly __SCRIPT_WIN_MOVE=\
-'tell application "System Events" to tell process "%s"
-  if (count of windows) is 0 then return
-  set position of front window to {%s, %s}
-end tell'
-
-# args: $1=app
-readonly __SCRIPT_WIN_FRAME=\
-'tell application "System Events" to tell process "%s"
-  if (count of windows) is 0 then return ""
-  set {x, y} to position of front window
-  set {w, h} to size of front window
-  set AppleScript'\''s text item delimiters to " "
-  return {x, y, w, h} as text
-end tell'
-
-# args: $1=app $2=l $3=t $4=r $5=b
-readonly __SCRIPT_WIN_FRAME_SET=\
-'tell application "System Events" to tell process "%s"
-  if (count of windows) = 0 then return
-  set position of front window to {%s, %s}
-  set size of front window to {%s, %s}
-end tell'
-
-# --- Internal API --------------------------------------------------------------
+# --- Internal Helpers --------------------------------------------------------
 
 __fmt() {
   # shellcheck disable=SC2059
   printf "$1\n" "${@:2}"
 }
 
-# --- Public API --------------------------------------------------------------
+# --- Screen Script API -------------------------------------------------------
 
 screen_workarea() {
-  osascript -l JavaScript <<<"$__SCRIPT_SCREEN_WORKAREA_JXA"
+  __osascript -l JavaScript <<<"$__SCRIPT_SCREEN_WORKAREA_JXA"
 }
 
-front_app() {
+# --- App Script API ----------------------------------------------------------
+
+app_front() {
   local delay="${1:-0}"
   ((delay > 0)) && sleep "$delay"
 
-  __fmt "$__SCRIPT_FRONT_APP" | osascript
+  printf '%s\n' "$__SCRIPT_APP_FRONT" | __osascript
 }
 
-app_focus() {
-  local app="${1:?app_focus: missing app name}"
+app_is_running() {
+  local app="${1:?app_is_running: missing app name}"
+  local result
 
-  __fmt "$__SCRIPT_APP_FOCUS" "$app" | osascript
+  result="$(__fmt "$__SCRIPT_APP_IS_RUNNING" "$app" | __osascript)" || return 1
+  [[ "$result" == "true" ]]
 }
 
 app_activate() {
   local app="${1:?app_activate: missing app name}"
 
   {
-    __fmt "$__SCRIPT_APP_FOCUS" "$app"
+    __fmt "$__SCRIPT_APP_ACTIVATE" "$app"
     __fmt "$__SCRIPT_WIN_UNMINIMIZE" "$app"
     __fmt "$__SCRIPT_WIN_FOCUS" "$app"
-  } | osascript
+  } | __osascript
 }
 
-win_unminimize() {
-  local app="${1:?win_unminimize: missing app name}"
+# --- Win Script API ----------------------------------------------------------
 
-  __fmt "$__SCRIPT_WIN_UNMINIMIZE" "$app" | osascript
-}
-
-win_focus() {
-  local app="${1:?win_focus: missing app}"
-
-  __fmt "$__SCRIPT_WIN_FOCUS" "$app" | osascript
+win_exists() {
+  local app="${1:?win_exists: missing app}"
+  local count
+  count="$(win_count "$app")" || return 1
+  (( count > 0 ))
 }
 
 win_count() {
   local app="${1:?win_count: missing app}"
 
-  __fmt "$__SCRIPT_WIN_COUNT" "$app" | osascript
+  __fmt "$__SCRIPT_WIN_COUNT" "$app" | __osascript
 }
 
-win_exists() {
-  local app="${1:?win_exists: missing app}"
+win_focus() {
+  local app="${1:?win_focus: missing app}"
 
-  (( $(win_count "$app") > 0 ))
+  __fmt "$__SCRIPT_WIN_FOCUS" "$app" | __osascript
+}
+
+win_unminimize() {
+  local app="${1:?win_unminimize: missing app name}"
+
+  __fmt "$__SCRIPT_WIN_UNMINIMIZE" "$app" | __osascript
+}
+
+win_activate() {
+  local app="${1:?win_activate: missing app name}"
+
+  {
+    __fmt "$__SCRIPT_WIN_UNMINIMIZE" "$app"
+    __fmt "$__SCRIPT_WIN_FOCUS" "$app"
+  } | __osascript
 }
 
 win_resize() {
@@ -162,7 +90,7 @@ win_resize() {
   local w="${2:-1200}"
   local h="${3:-800}"
 
-  __fmt "$__SCRIPT_WIN_RESIZE" "$app" "$w" "$h" | osascript
+  __fmt "$__SCRIPT_WIN_RESIZE" "$app" "$w" "$h" | __osascript
 }
 
 win_move() {
@@ -170,13 +98,13 @@ win_move() {
   local l="${2:-0}"
   local t="${3:-0}"
 
-  __fmt "$__SCRIPT_WIN_MOVE" "$app" "$l" "$t" | osascript
+  __fmt "$__SCRIPT_WIN_MOVE" "$app" "$l" "$t" | __osascript
 }
 
 win_frame() {
   local app="${1:?win_frame: missing app}"
 
-  __fmt "$__SCRIPT_WIN_FRAME" "$app" | osascript
+  __fmt "$__SCRIPT_WIN_FRAME" "$app" | __osascript
 }
 
 win_frame_set() {
@@ -186,7 +114,7 @@ win_frame_set() {
   local w="${4:-1200}"
   local h="${5:-800}"
 
-  __fmt "$__SCRIPT_WIN_FRAME_SET" "$app" "$l" "$t" "$w" "$h" | osascript
+  __fmt "$__SCRIPT_WIN_FRAME_SET" "$app" "$l" "$t" "$w" "$h" | __osascript
 }
 
 win_place() {
@@ -196,8 +124,10 @@ win_place() {
   local sl st sw sh
   read -r sl st sw sh <<< "$(screen_workarea)"
 
-  local l t w h
-  read -r l t w h <<< "$(win_frame "$app")"
+  local frame l t w h
+  frame="$(win_frame "$app")" || return 1
+  [[ -n "$frame" ]] || return 1
+  read -r l t w h <<< "$frame"
 
   case "$pos" in
     center)
