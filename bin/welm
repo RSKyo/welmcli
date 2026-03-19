@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# shellcheck disable=SC2034,SC1091
 set -euo pipefail
 
 # 禁用 history expansion（避免 ! 被 bash 解释）
@@ -6,45 +7,52 @@ set +o histexpand
 
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
 PROJECT_DIR="$(cd -- "$SCRIPT_DIR/.." &>/dev/null && pwd)"
-INFRA_DIR="$PROJECT_DIR/lib/infra"
-LIB_DIR="$PROJECT_DIR/lib"
 
-source "$INFRA_DIR/log.source.sh"
-source "$INFRA_DIR/deps.source.sh"
-source "$INFRA_DIR/config.source.sh"
+LIB_DIR="$PROJECT_DIR/lib"
+NODE_DIR="$PROJECT_DIR/node"
+
+source "$LIB_DIR/infra/log.source.sh"
+source "$LIB_DIR/infra/runtime.source.sh"
+source "$LIB_DIR/infra/deps.source.sh"
+source "$LIB_DIR/infra/config.source.sh"
+
+source "$LIB_DIR/browser/chrome.source.sh"
 
 source "$LIB_DIR/node/cdp.source.sh"
-source "$LIB_DIR/macos_gui.source.sh"
-source "$LIB_DIR/clichatgpt.source.sh"
+source "$LIB_DIR/chatgpt.source.sh"
 
-welmcli_config_ensure
-welmcli_config_load
+platform_detect || return 1
+chrome_bin_resolve || return 1
+chrome_bin_check || return 1
 
-require_cmds jq cliclick pbcopy pbpaste
+config_ensure || return 1
+config_load
+
+deps_require jq
 
 clichatgpt_usage() {
   cat <<'EOF'
 Usage:
-  clichatgpt talk [args...]
-  clichatgpt cdp  [args...]
+  welmcli cdp  [args...]
+  welmcli chatgpt [args...]
 
 Commands:
-  talk    Talk to ChatGPT
-  cdp     Run CDP helper commands
+  chatgpt    Talk to ChatGPT
+  cdp        Run CDP helper commands
 EOF
 }
 
 main() {
-  local cmd="${1:-talk}"
+  local cmd="${1:--h}"
 
   case "$cmd" in
-    talk)
-      shift || true
-      clichatgpt_talk "$@"
-      ;;
     cdp)
       shift || true
       cdp "$@"
+      ;;
+    chatgpt)
+      shift || true
+      chatgpt_talk "$@"
       ;;
     -h|--help|help)
       clichatgpt_usage

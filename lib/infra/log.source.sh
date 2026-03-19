@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
-# Source-only library: log
+# Source-only library: infra/log
 
 # --- Source Guard ------------------------------------------------------------
 
-[[ -n ${__LOG_SOURCED+x} ]] && return
-__LOG_SOURCED=1
+[[ -n ${__INFRA_LOG_SOURCED+x} ]] && return
+__INFRA_LOG_SOURCED=1
 
-# --- Config ------------------------------------------------------------
+# --- Config ------------------------------------------------------------------
 
 : "${LOG_VERBOSE:=1}"
 : "${LOG_FD:=2}"
@@ -33,15 +33,21 @@ loge() {
   fi
 }
 
+logh() {
+  printf '  -> %s\n' "$*" >&"$LOG_FD"
+}
+
 logp() {
   (( LOG_VERBOSE )) || return
 
   local module="$1"
   shift
 
-  printf '\r[%s] %s' "$module" "$*" >&"$LOG_FD"
+  printf '\r\033[K[%s] %s' "$module" "$*" >&"$LOG_FD"
 }
 
+# \r      回到行首
+# \033[K  清除整行
 logp_done() {
   printf '\n' >&"$LOG_FD"
 }

@@ -1,94 +1,98 @@
 #!/usr/bin/env bash
-# Source-only library: config
+# Source-only library: infra/config
 
 # --- Source Guard ------------------------------------------------------------
 
-[[ -n "${__CONFIG_SOURCED+x}" ]] && return
-__CONFIG_SOURCED=1
+[[ -n "${__INFRA_CONFIG_SOURCED+x}" ]] && return
+__INFRA_CONFIG_SOURCED=1
 
 # --- Constants ---------------------------------------------------------------
 
-readonly WELMCLI_CONFIG_DIR="${HOME}/.config/welmcli"
-readonly WELMCLI_CONFIG_FILE="$WELMCLI_CONFIG_DIR/config"
+readonly CONFIG_DIR="${HOME}/.config/welmcli"
+readonly CONFIG_FILE="$CONFIG_DIR/config"
 
 # --- Public API --------------------------------------------------------------
 
-welmcli_config_ensure() {
-  [[ -f "$WELMCLI_CONFIG_FILE" ]] && return 0
+config_ensure() {
+  [[ -f "$CONFIG_FILE" ]] && return 0
+  
+  mkdir -p "$CONFIG_DIR" || return 1
 
-  mkdir -p "$WELMCLI_CONFIG_DIR" || return 1
-
-  cat >"$WELMCLI_CONFIG_FILE" <<EOF
+  cat >"$CONFIG_FILE" <<EOF
 # welmcli config
-WELMCLI_DATA_DIR="${HOME}/.local/share/welmcli"
+DATA_DIR="${HOME}/.local/share/welmcli"
 
 # ChatGpt
-CLICHATGPT_URL='https://chatgpt.com/?temporary-chat=true'
-CLICHATGPT_REPLY_FILE_NAME="$(date '+%Y%m%d_%H%M%S')_reply"
+CHATGPT_URL='https://chatgpt.com/?temporary-chat=true'
+CHATGPT_REPLY_FILE_NAME="$(date '+%Y%m%d_%H%M%S')_reply"
 
 EOF
 }
 
-welmcli_config_load() {
-  [[ -f "$WELMCLI_CONFIG_FILE" ]] && source "$WELMCLI_CONFIG_FILE"
+config_load() {
+  [[ -f "$CONFIG_FILE" ]] || return 0
+  # shellcheck disable=SC1090
+  source "$CONFIG_FILE"
 }
 
-welmcli_config_read() {
-  local key="${1:?welmcli_config_read: missing key}"
-  local file="$WELMCLI_CONFIG_FILE"
-
-  [[ -f "$file" ]] || return 1
+config_get() {
+  local key="${1:?config_get: missing key}"
+ 
+  [[ -f "$CONFIG_FILE" ]] || return 1
 
   local line value
-
   while IFS= read -r line; do
     [[ -z "$line" || "$line" == \#* ]] && continue
 
     case "$line" in
-      "$key="*)
-        value="${line#*=}"
+      "${key}="*)
+        value="$(config_unquote "${line#*=}")"
         printf '%s\n' "$value"
         return 0
         ;;
     esac
-  done < "$file"
+  done < "$CONFIG_FILE"
 
   return 1
 }
 
-welmcli_config_write() {
-  local key="${1:?welmcli_config_write: missing key}"
-  local value="${2:?welmcli_config_write: missing value}"
+config_set() {
+  local key="${1:?config_set: missing key}"
+  local value="${2:?config_set: missing value}"
 
-  local file="$WELMCLI_CONFIG_FILE"
-  local dir
-  dir="$(dirname "$file")"
-
-  mkdir -p "$dir" || return 1
+  [[ -f "$CONFIG_FILE" ]] || return 1
 
   local tmp
-  tmp="$(mktemp "${TMPDIR}/welmcli.XXXXXX")" || return 1
+  tmp="$(mktemp "${TMPDIR:-/tmp}/welmcli.XXXXXX")" || return 1
   trap 'rm -f "$tmp"' RETURN
 
   local found=0 line
-
-  if [[ -f "$file" ]]; then
-    while IFS= read -r line; do
-      if [[ "$line" == "$key="* ]]; then
-        printf '%s=%s\n' "$key" "$value" >>"$tmp"
-        found=1
-      else
-        printf '%s\n' "$line" >>"$tmp"
-      fi
-    done < "$file"
-  fi
+  while IFS= read -r line; do
+    if [[ "$line" == "${key}="* ]]; then
+      printf '%s=%q\n' "${key}" "$value" >>"$tmp"
+      found=1
+    else
+      printf '%s\n' "$line" >>"$tmp"
+    fi
+  done < "$CONFIG_FILE"
 
   if (( ! found )); then
-    printf '%s=%s\n' "$key" "$value" >>"$tmp"
+    printf '%s=%q\n' "${key}" "$value" >>"$tmp"
   fi
 
-  mv "$tmp" "$file" || return 1
+  mv "$tmp" "$CONFIG_FILE" || return 1
 
   # 重新加载
-  welmcli_config_load
+  config_load
+}
+
+config_unquote() {
+  local v="$1"
+
+  v="${v#\'}"
+  v="${v%\'}"
+  v="${v#\"}"
+  v="${v%\"}"
+
+  printf '%s\n' "$v"
 }

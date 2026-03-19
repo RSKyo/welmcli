@@ -4,32 +4,43 @@
 # --- Source Guard ------------------------------------------------------------
 
 # Prevent multiple sourcing
-[[ -n "${__CLICHATGPT_SOURCED+x}" ]] && return 0
-__CLICHATGPT_SOURCED=1
+[[ -n "${__CHATGPT_SOURCED+x}" ]] && return 0
+__CHATGPT_SOURCED=1
 
 # --- Config ---------------------------------------------------------------
 
 # Configurable parameters (can be overridden via environment)
-: "${CLICHATGPT_URL:=https://chatgpt.com/?temporary-chat=true}"
+: "${DATA_DIR:="${HOME}/.local/share/welmcli"}"
+
+: "${CHATGPT_URL:=https://chatgpt.com/?temporary-chat=true}"
+: "${CHATGPT_REPLY_FILE_NAME:="$(date '+%Y%m%d_%H%M%S')_reply"}"
 
 # Configurable parameters (can be overridden via environment)
-: "${CLICHATGPT_CHROME_CHATGPT_WAIT_REPLY_COMPLETE_TIMEOUT:=60}"
-: "${CLICHATGPT_CHROME_CHATGPT_WAIT_REPLY_COMPLETE_SLEEP:=0.5}"
-: "${CLICHATGPT_REPLY_DIR:="${HOME}/.local/share/clichatgpt"}"
-: "${CLICHATGPT_REPLY_FILE_NAME:="$(date '+%Y%m%d_%H%M%S')_reply"}"
+# : "${CLICHATGPT_CHROME_CHATGPT_WAIT_REPLY_COMPLETE_TIMEOUT:=60}"
+# : "${CLICHATGPT_CHROME_CHATGPT_WAIT_REPLY_COMPLETE_SLEEP:=0.5}"
+
 
 # --- Public API --------------------------------------------------------------
 
-clichatgpt_talk() {
+chatgpt_talk() {
 
-  local tabId
-  tabId="$(cdp_find_tab_id 'chatgpt.com')"
+  chrome_debug_ensure || return 1
 
-  local input
-  input="$(cdp_text "$tabId" '[contenteditable]')"
-  log clichatgpt "$input"
+  log "xxxxx"
+  # local tab_id
+  # tab_id="$(cdp_find_tab_id 'chatgpt.com')"
 
-  # chrome_tab_open "$CLICHATGPT_URL" || return 1
+  # local input
+  # input="$(cdp_text "$tab_id" '[contenteditable]')"
+  # log clichatgpt "$input"
+
+
+
+
+
+
+
+  # chrome_tab_open "$CHATGPT_URL" || return 1
   # sleep 0.1
   # app_activate "Terminal"
 
@@ -92,210 +103,210 @@ clichatgpt_talk() {
   # fi
 }
 
-clichatgpt_snapshot() {
-  __clichatgpt_state_pbpaste="$(pbpaste)"
-  __clichatgpt_state_p="$(cliclick p)"
-  pbcopy </dev/null
-}
+# clichatgpt_snapshot() {
+#   __clichatgpt_state_pbpaste="$(pbpaste)"
+#   __clichatgpt_state_p="$(cliclick p)"
+#   pbcopy </dev/null
+# }
 
-clichatgpt_restore() {
-  [[ -n "${__clichatgpt_state_pbpaste+x}" ]] || return 0
-  printf '%s' "$__clichatgpt_state_pbpaste" | pbcopy
-  cliclick m:"$__clichatgpt_state_p"
-}
+# clichatgpt_restore() {
+#   [[ -n "${__clichatgpt_state_pbpaste+x}" ]] || return 0
+#   printf '%s' "$__clichatgpt_state_pbpaste" | pbcopy
+#   cliclick m:"$__clichatgpt_state_p"
+# }
 
-clichatgpt_copy() {
-  local copy_button_xy
-  copy_button_xy="$(chrome_chatgpt_locate_copy_button_screen)" || return 1
+# clichatgpt_copy() {
+#   local copy_button_xy
+#   copy_button_xy="$(chrome_chatgpt_locate_copy_button_screen)" || return 1
 
-  cliclick c:"$copy_button_xy"
-  sleep 0.2
-}
+#   cliclick c:"$copy_button_xy"
+#   sleep 0.2
+# }
 
-clichatgpt_get_reply() {
-  local reply deadline=$((SECONDS+2))
+# clichatgpt_get_reply() {
+#   local reply deadline=$((SECONDS+2))
 
-  while ((SECONDS < deadline)); do
-    reply="$(pbpaste)"
-    if [[ -n "$reply" ]]; then
-      printf '%s' "$reply"
-      return 0
-    fi
-    sleep 0.05
-  done
+#   while ((SECONDS < deadline)); do
+#     reply="$(pbpaste)"
+#     if [[ -n "$reply" ]]; then
+#       printf '%s' "$reply"
+#       return 0
+#     fi
+#     sleep 0.05
+#   done
 
-  return 1
-}
+#   return 1
+# }
 
-clichatgpt_reply_filename() {
-  local input="${1:-}"
-  local prefix text
+# clichatgpt_reply_filename() {
+#   local input="${1:-}"
+#   local prefix text
 
-  # 1️⃣ 取前 20 个字符（UTF-8 安全）
-  text="$(printf '%s' "$input" | cut -c1-20)"
+#   # 1️⃣ 取前 20 个字符（UTF-8 安全）
+#   text="$(printf '%s' "$input" | cut -c1-20)"
 
-  # 2️⃣ 去换行
-  text="${text//$'\n'/ }"
+#   # 2️⃣ 去换行
+#   text="${text//$'\n'/ }"
 
-  # 3️⃣ 替换非法文件名字符
-  # macOS / Linux 常见非法字符
-  text="${text//\//_}"
-  text="${text//:/_}"
-  text="${text//\*/_}"
-  text="${text//\?/_}"
-  text="${text//\"/_}"
-  text="${text//</_}"
-  text="${text//>/_}"
-  text="${text//|/_}"
+#   # 3️⃣ 替换非法文件名字符
+#   # macOS / Linux 常见非法字符
+#   text="${text//\//_}"
+#   text="${text//:/_}"
+#   text="${text//\*/_}"
+#   text="${text//\?/_}"
+#   text="${text//\"/_}"
+#   text="${text//</_}"
+#   text="${text//>/_}"
+#   text="${text//|/_}"
 
-  # 4️⃣ 压缩多余空格
-  text="$(printf '%s' "$text" | tr -s ' ')"
+#   # 4️⃣ 压缩多余空格
+#   text="$(printf '%s' "$text" | tr -s ' ')"
 
-  # 5️⃣ 去首尾空格
-  text="${text#"${text%%[! ]*}"}"
-  text="${text%"${text##*[! ]}"}"
+#   # 5️⃣ 去首尾空格
+#   text="${text#"${text%%[! ]*}"}"
+#   text="${text%"${text##*[! ]}"}"
 
-  # 6️⃣ 防止为空
-  [[ -z "$text" ]] && text="reply"
+#   # 6️⃣ 防止为空
+#   [[ -z "$text" ]] && text="reply"
 
-  # 7️⃣ 组合
-  printf '%s_%s\n' "$(date '+%Y%m%d_%H%M%S')" "$text"
-}
+#   # 7️⃣ 组合
+#   printf '%s_%s\n' "$(date '+%Y%m%d_%H%M%S')" "$text"
+# }
   
 
-chrome_chatgpt_input() {
-  local text="$1"
+# chrome_chatgpt_input() {
+#   local text="$1"
 
-  js_escape() {
-    local s="$1"
-    s=${s//\\/\\\\}
-    s=${s//\'/\\\'}
-    s=${s//$'\n'/\\n}
-    s=${s//$'\r'/\\r}
-    s=${s//$'\t'/\\t}
-    printf '%s' "$s"
-  }
+#   js_escape() {
+#     local s="$1"
+#     s=${s//\\/\\\\}
+#     s=${s//\'/\\\'}
+#     s=${s//$'\n'/\\n}
+#     s=${s//$'\r'/\\r}
+#     s=${s//$'\t'/\\t}
+#     printf '%s' "$s"
+#   }
 
-  text="$(js_escape "$text")"
+#   text="$(js_escape "$text")"
 
 
-  osascript <<EOF >/dev/null
-tell application "Google Chrome"
-  tell active tab of front window
-    execute javascript "
-      (function(){
-        var e=document.querySelector('[contenteditable]');
-        if(!e) return;
+#   osascript <<EOF >/dev/null
+# tell application "Google Chrome"
+#   tell active tab of front window
+#     execute javascript "
+#       (function(){
+#         var e=document.querySelector('[contenteditable]');
+#         if(!e) return;
 
-        e.focus();
-        e.innerText='$text';
-        e.dispatchEvent(new Event('input',{bubbles:true}));
-      })();
-    "
-  end tell
-end tell
-EOF
-}
+#         e.focus();
+#         e.innerText='$text';
+#         e.dispatchEvent(new Event('input',{bubbles:true}));
+#       })();
+#     "
+#   end tell
+# end tell
+# EOF
+# }
 
-chrome_chatgpt_submit() {
-  osascript <<EOF >/dev/null
-tell application "Google Chrome"
-  tell active tab of front window
-    execute javascript "
-      var b=document.querySelector('[data-testid=\"send-button\"]');
-      if(b) b.click();
-      true;
-    "
-  end tell
-end tell
-EOF
-}
+# chrome_chatgpt_submit() {
+#   osascript <<EOF >/dev/null
+# tell application "Google Chrome"
+#   tell active tab of front window
+#     execute javascript "
+#       var b=document.querySelector('[data-testid=\"send-button\"]');
+#       if(b) b.click();
+#       true;
+#     "
+#   end tell
+# end tell
+# EOF
+# }
 
-chrome_chatgpt_has_stop_button() {
-  osascript <<'EOF'
-tell application "Google Chrome"
-  tell active tab of front window
-    execute javascript "
-      (function(){
-        var btn =
-          document.querySelector('[data-testid=\"stop-button\"]') ||
-          document.querySelector('button[aria-label*=\"停止\"]') ||
-          document.querySelector('button[aria-label*=\"Stop\"]') ||
-          document.querySelector('button svg[data-icon=\"stop\"]');
+# chrome_chatgpt_has_stop_button() {
+#   osascript <<'EOF'
+# tell application "Google Chrome"
+#   tell active tab of front window
+#     execute javascript "
+#       (function(){
+#         var btn =
+#           document.querySelector('[data-testid=\"stop-button\"]') ||
+#           document.querySelector('button[aria-label*=\"停止\"]') ||
+#           document.querySelector('button[aria-label*=\"Stop\"]') ||
+#           document.querySelector('button svg[data-icon=\"stop\"]');
 
-        return btn ? '1' : '0';
-      })()
-    "
-  end tell
-end tell
-EOF
-}
+#         return btn ? '1' : '0';
+#       })()
+#     "
+#   end tell
+# end tell
+# EOF
+# }
 
-chrome_chatgpt_scroll_copy_button() {
-  osascript <<'EOF' >/dev/null
-tell application "Google Chrome"
-  tell active tab of front window
-    execute javascript "
-      var btns=document.querySelectorAll('[data-testid=\"copy-turn-action-button\"]');
-      if(btns.length){
-        var btn=btns[btns.length-1];
-        btn.scrollIntoView({behavior:'instant', block:'start'});
-        window.scrollBy(0,-40);
-      }
-    "
-  end tell
-end tell
-EOF
-}
+# chrome_chatgpt_scroll_copy_button() {
+#   osascript <<'EOF' >/dev/null
+# tell application "Google Chrome"
+#   tell active tab of front window
+#     execute javascript "
+#       var btns=document.querySelectorAll('[data-testid=\"copy-turn-action-button\"]');
+#       if(btns.length){
+#         var btn=btns[btns.length-1];
+#         btn.scrollIntoView({behavior:'instant', block:'start'});
+#         window.scrollBy(0,-40);
+#       }
+#     "
+#   end tell
+# end tell
+# EOF
+# }
 
-chrome_chatgpt_locate_copy_button() {
-  osascript <<'EOF'
-tell application "Google Chrome"
-  tell active tab of front window
-    execute javascript "
-      (function(){
-        var btns = document.querySelectorAll('[data-testid=\"copy-turn-action-button\"]');
-        if(!btns.length) return '';
+# chrome_chatgpt_locate_copy_button() {
+#   osascript <<'EOF'
+# tell application "Google Chrome"
+#   tell active tab of front window
+#     execute javascript "
+#       (function(){
+#         var btns = document.querySelectorAll('[data-testid=\"copy-turn-action-button\"]');
+#         if(!btns.length) return '';
 
-        var btn = btns[btns.length-1];
-        var r = btn.getBoundingClientRect();
+#         var btn = btns[btns.length-1];
+#         var r = btn.getBoundingClientRect();
 
-        var x = Math.round(r.left + r.width/2);
-        var y = Math.round(window.innerHeight - (r.top + r.height/2));
+#         var x = Math.round(r.left + r.width/2);
+#         var y = Math.round(window.innerHeight - (r.top + r.height/2));
 
-        return x + ',' + y;
-      })();
-    "
-  end tell
-end tell
-EOF
-}
+#         return x + ',' + y;
+#       })();
+#     "
+#   end tell
+# end tell
+# EOF
+# }
 
-chrome_chatgpt_locate_copy_button_screen() {
-  local bx by
-  IFS=, read -r bx by < <(chrome_chatgpt_locate_copy_button) || return 1
+# chrome_chatgpt_locate_copy_button_screen() {
+#   local bx by
+#   IFS=, read -r bx by < <(chrome_chatgpt_locate_copy_button) || return 1
 
-  local wl wt ww wh
-  read -r wl wt ww wh < <(win_frame "Google Chrome") || return 1
+#   local wl wt ww wh
+#   read -r wl wt ww wh < <(win_frame "Google Chrome") || return 1
 
-  printf '%s\n' "$((wl + bx)),$((wt + wh - by))"
-}
+#   printf '%s\n' "$((wl + bx)),$((wt + wh - by))"
+# }
 
-chrome_chatgpt_wait_reply_complete() {
-  local timeout="$CLICHATGPT_CHROME_CHATGPT_WAIT_REPLY_COMPLETE_TIMEOUT"
-  local sleep="$CLICHATGPT_CHROME_CHATGPT_WAIT_REPLY_COMPLETE_SLEEP"
-  local start=$SECONDS
+# chrome_chatgpt_wait_reply_complete() {
+#   local timeout="$CLICHATGPT_CHROME_CHATGPT_WAIT_REPLY_COMPLETE_TIMEOUT"
+#   local sleep="$CLICHATGPT_CHROME_CHATGPT_WAIT_REPLY_COMPLETE_SLEEP"
+#   local start=$SECONDS
 
-  while :; do
-    if [[ "$(chrome_chatgpt_has_stop_button)" == "0" ]]; then
-      return 0
-    fi
+#   while :; do
+#     if [[ "$(chrome_chatgpt_has_stop_button)" == "0" ]]; then
+#       return 0
+#     fi
 
-    (( SECONDS - start >= timeout )) && {
-      loge "wait reply complete timeout (${timeout}s)"
-      return 1
-    }
+#     (( SECONDS - start >= timeout )) && {
+#       loge "wait reply complete timeout (${timeout}s)"
+#       return 1
+#     }
 
-    sleep "$sleep"
-  done
-}
+#     sleep "$sleep"
+#   done
+# }

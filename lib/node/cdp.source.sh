@@ -1,9 +1,13 @@
 #!/usr/bin/env bash
-# Source-only library: node
+# Source-only library: node/cdp
 
-cdp() {
-  node "$PROJECT_DIR/node/cdp.js" "$@"
-}
+# --- Source Guard ------------------------------------------------------------
+
+# Prevent multiple sourcing
+[[ -n "${__NODE_CDP_SOURCED+x}" ]] && return 0
+__NODE_CDP_SOURCED=1
+
+# --- Internal Helpers --------------------------------------------------------
 
 __unwrap() {
   local out="$1"
@@ -14,6 +18,12 @@ __unwrap() {
   fi
 
   printf '%s\n' "$(jq -r '.value' <<< "$out")"
+}
+
+# --- Public API --------------------------------------------------------------
+
+cdp() {
+  node "$PROJECT_DIR/node/cdp.js" "$@"
 }
 
 cdp_find_tab_id() {
