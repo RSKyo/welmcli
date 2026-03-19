@@ -13,12 +13,12 @@ source "$INFRA_DIR/log.source.sh"
 source "$INFRA_DIR/deps.source.sh"
 source "$INFRA_DIR/config.source.sh"
 
-source "$LIB_DIR/node.source.sh"
+source "$LIB_DIR/node/cdp.source.sh"
 source "$LIB_DIR/macos_gui.source.sh"
 source "$LIB_DIR/clichatgpt.source.sh"
 
-clichatgpt_config_ensure
-clichatgpt_config_load
+welmcli_config_ensure
+welmcli_config_load
 
 require_cmds jq cliclick pbcopy pbpaste
 
@@ -44,7 +44,7 @@ main() {
       ;;
     cdp)
       shift || true
-      node_cdp "$@"
+      cdp "$@"
       ;;
     -h|--help|help)
       clichatgpt_usage
