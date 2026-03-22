@@ -15,31 +15,31 @@ import {
 
 // target 命令注册表
 export const TARGET_COMMANDS = {
-  list: handle_list,
-  has: handle_has,
-  new: handle_new,
-  open: handle_open,
-  activate: handle_activate,
-  close: handle_close,
-  find: handle_find,
-  current: handle_current,
+  list: cmd_list,
+  has: cmd_has,
+  new: cmd_new,
+  open: cmd_open,
+  activate: cmd_activate,
+  close: cmd_close,
+  find: cmd_find,
+  current: cmd_current,
 };
 
-async function handle_list() {
+async function cmd_list() {
   return await listTargets();
 }
 
-async function handle_has(args) {
+async function cmd_has(args) {
   const [targetId] = args;
   return await hasTarget(targetId);
 }
 
-async function handle_new(args) {
+async function cmd_new(args) {
   const [url] = args;
   return await newTarget(url);
 }
 
-async function handle_open(args) {
+async function cmd_open(args) {
   const [url] = args;
 
   const inputUrl = normalizeUrl(url);
@@ -55,21 +55,21 @@ async function handle_open(args) {
   return await newTarget(url);
 }
 
-async function handle_activate(args) {
+async function cmd_activate(args) {
   const [targetId] = args;
   await activateTarget(targetId);
 }
 
-async function handle_close(args) {
+async function cmd_close(args) {
   const [targetId] = args;
   await closeTarget(targetId);
 }
 
-async function handle_find(args) {
+async function cmd_find(args) {
   const [keyword] = args;
   return await findTarget(keyword);
 }
 
-async function handle_current() {
+async function cmd_current() {
   return await currentTarget();
 }
