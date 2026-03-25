@@ -1,7 +1,31 @@
 import { getClient } from './client.js';
 import { ERROR_CODE, CliError } from '../infra/protocol.js';
 
-export function buildEvaluateExpression(source) {
+function unwrapResult(res) {
+  const { result, exceptionDetails } = res;
+
+  if (exceptionDetails) {
+    const msg =
+      exceptionDetails.text ||
+      exceptionDetails.exception?.description ||
+      'evaluation failed';
+
+    throw new CliError(ERROR_CODE.EVALUATE_ERROR, msg);
+  }
+
+  if (!result) {
+    throw new CliError(
+      ERROR_CODE.EVALUATE_ERROR,
+      'missing evaluation result',
+    );
+  }
+
+  return 'value' in result
+  ? result.value
+  : result.description;
+}
+
+export function buildStructuredExpression(source) {
   return `
     (() => {
       try {
@@ -22,7 +46,6 @@ export function buildEvaluateExpression(source) {
 
 export async function evaluate(targetId, expression) {
   const client = await getClient(targetId);
-
   const { Runtime } = client;
 
   const res = await Runtime.evaluate({
@@ -31,23 +54,5 @@ export async function evaluate(targetId, expression) {
     awaitPromise: true,
   });
 
-  return evaluateResult(res);
-}
-
-export function evaluateResult(res) {
-  const { result, exceptionDetails } = res
-
-  if (exceptionDetails) {
-    const msg =
-      exceptionDetails.text ||
-      exceptionDetails.exception?.description ||
-      'evaluation failed';
-    throw new CliError(ERROR_CODE.EVALUATE_ERROR, msg);
-  }
-
-  if (!result) return undefined;
-
-  return 'value' in result
-    ? result.value
-    : result.description;
+  return unwrapResult(res);
 }
