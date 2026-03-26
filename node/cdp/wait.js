@@ -57,7 +57,8 @@ async function poll(targetId, source, options = {}) {
 
     if (result.ok === true && isPollMatched(result.value)) {
       return {
-        ...result,
+        ok: true,
+        value: result.value,
         timeout,
         interval,
         elapsed: Date.now() - start,
