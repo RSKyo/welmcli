@@ -17,3 +17,15 @@ export function requireValue(value, message) {
 
   return value;
 }
+
+export function requireEmitter(emitter, message = 'invalid emitter') {
+  if (
+    !emitter ||
+    typeof emitter.on !== 'function' ||
+    typeof emitter.off !== 'function'
+  ) {
+    throw new CliError(ERROR_CODE.INVALID_ARGS, message);
+  }
+
+  return emitter;
+}
