@@ -1,4 +1,4 @@
-import { parseBool } from '../infra/parse.js'
+import { toBool } from '../infra/core.js'
 import {
   click,
   type,
@@ -78,7 +78,7 @@ export async function cmd_click(args = []) {
 export async function cmd_type(args = []) {
   const [targetId, selector, text, clear] = args;
   return await type(targetId, selector, text, {
-    clear: parseBool(clear, false),
+    clear: toBool(clear, false),
   });
 }
 
@@ -158,7 +158,7 @@ export async function cmd_scroll(args = []) {
 export async function cmd_text(args = []) {
   const [targetId, selector, useTextContent] = args;
   return await getText(targetId, selector, {
-    useTextContent: parseBool(useTextContent, false),
+    useTextContent: toBool(useTextContent, false),
   });
 }
 
@@ -183,6 +183,6 @@ export async function cmd_text(args = []) {
 export async function cmd_html(args = []) {
   const [targetId, selector, inner] = args;
   return await getHtml(targetId, selector, {
-    inner: parseBool(inner, false),
+    inner: toBool(inner, false),
   });
 }

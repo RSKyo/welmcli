@@ -1,4 +1,4 @@
-import { parseBool, parseInt, parseFloat } from '../infra/parse.js'
+import { toBool, toInt, toFloat } from '../infra/core.js'
 import {
   setViewport,
   setDesktopViewport,
@@ -59,12 +59,12 @@ export async function cmd_viewport(args = []) {
 
   await setViewport(
     targetId,
-    parseInt(width, 'width'),
-    parseInt(height, 'height'),
+    toInt(width, 'width'),
+    toInt(height, 'height'),
     {
-      mobile: parseBool(mobile, false),
+      mobile: toBool(mobile, false),
       deviceScaleFactor:
-        deviceScaleFactor == null ? 1 : parseFloat(deviceScaleFactor, 'deviceScaleFactor'),
+        deviceScaleFactor == null ? 1 : toFloat(deviceScaleFactor, 'deviceScaleFactor'),
     },
   );
 
@@ -96,11 +96,11 @@ export async function cmd_desktop(args = []) {
 
   await setDesktopViewport(
     targetId,
-    width == null ? 1440 : parseInt(width, 'width'),
-    height == null ? 900 : parseInt(height, 'height'),
+    width == null ? 1440 : toInt(width, 'width'),
+    height == null ? 900 : toInt(height, 'height'),
     {
       deviceScaleFactor:
-        deviceScaleFactor == null ? 1 : parseFloat(deviceScaleFactor, 'deviceScaleFactor'),
+        deviceScaleFactor == null ? 1 : toFloat(deviceScaleFactor, 'deviceScaleFactor'),
     },
   );
 
@@ -136,11 +136,11 @@ export async function cmd_mobile(args = []) {
 
   await setMobileViewport(
     targetId,
-    width == null ? 390 : parseInt(width, 'width'),
-    height == null ? 844 : parseInt(height, 'height'),
+    width == null ? 390 : toInt(width, 'width'),
+    height == null ? 844 : toInt(height, 'height'),
     {
       deviceScaleFactor:
-        deviceScaleFactor == null ? 3 : parseFloat(deviceScaleFactor, 'deviceScaleFactor'),
+        deviceScaleFactor == null ? 3 : toFloat(deviceScaleFactor, 'deviceScaleFactor'),
     },
   );
 
@@ -193,8 +193,8 @@ export async function cmd_touch(args = []) {
 
   await setTouchEmulation(
     targetId,
-    parseBool(enabled, true),
-    maxTouchPoints == null ? 1 : parseInt(maxTouchPoints, 'maxTouchPoints'),
+    toBool(enabled, true),
+    maxTouchPoints == null ? 1 : toInt(maxTouchPoints, 'maxTouchPoints'),
   );
 
   return true;
@@ -243,9 +243,9 @@ export async function cmd_geo(args = []) {
 
   await setGeolocation(
     targetId,
-    parseFloat(latitude, 'latitude'),
-    parseFloat(longitude, 'longitude'),
-    accuracy == null ? 100 : parseFloat(accuracy, 'accuracy'),
+    toFloat(latitude, 'latitude'),
+    toFloat(longitude, 'longitude'),
+    accuracy == null ? 100 : toFloat(accuracy, 'accuracy'),
   );
 
   return true;

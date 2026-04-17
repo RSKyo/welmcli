@@ -2,7 +2,7 @@
 // CLI page commands
 // ========================
 
-import { parseInt } from '../infra/parse.js'
+import { toBool, toInt } from '../infra/core.js'
 
 import {
   navigatePage,
@@ -43,20 +43,7 @@ export const PAGE_COMMANDS = {
   fullshot: cmd_fullshot,
 };
 
-/**
- * 将命令参数解析为布尔值
- * 支持：
- * - true / false
- * - 'true' / 'false'
- * - '1' / '0'
- */
-function toBool(value, defaultValue = false) {
-  if (value == null || value === '') return defaultValue;
-  if (value === true || value === 'true' || value === '1') return true;
-  if (value === false || value === 'false' || value === '0') return false;
 
-  throw new CliError(ERROR_CODE.INVALID_ARGS, `invalid boolean: ${value}`);
-}
 
 /**
  * 跳转到指定 url
@@ -282,7 +269,7 @@ export async function cmd_wait_load(args = []) {
 
   return await waitPageLoad(
     targetId,
-    timeout == null ? 10000 : parseInt(timeout, 'timeout'),
+    timeout == null ? 10000 : toInt(timeout, 'timeout'),
   );
 }
 
@@ -310,7 +297,7 @@ export async function cmd_wait_dom(args = []) {
 
   return await waitDomContentLoaded(
     targetId,
-    timeout == null ? 10000 : parseInt(timeout, 'timeout'),
+    timeout == null ? 10000 : toInt(timeout, 'timeout'),
   );
 }
 
@@ -340,7 +327,7 @@ export async function cmd_screenshot(args = []) {
 
   return await captureScreenshot(targetId, {
     format: format || 'png',
-    quality: quality == null ? undefined : parseInt(quality, 'quality'),
+    quality: quality == null ? undefined : toInt(quality, 'quality'),
   });
 }
 
@@ -370,6 +357,6 @@ export async function cmd_fullshot(args = []) {
 
   return await captureFullPageScreenshot(targetId, {
     format: format || 'png',
-    quality: quality == null ? undefined : parseInt(quality, 'quality'),
+    quality: quality == null ? undefined : toInt(quality, 'quality'),
   });
 }

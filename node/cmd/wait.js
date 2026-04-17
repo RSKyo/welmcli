@@ -1,4 +1,4 @@
-import { parseInt } from '../infra/parse.js'
+import { toInt } from '../infra/core.js'
 import {
   waitSelector,
   waitVisible,
@@ -33,8 +33,8 @@ export const WAIT_COMMANDS = {
 
 function getWaitOptions(timeout, interval) {
   return {
-    timeout: timeout == null ? 10000 : parseInt(timeout, 'timeout'),
-    interval: interval == null ? 200 : parseInt(interval, 'interval'),
+    timeout: timeout == null ? 10000 : toInt(timeout, 'timeout'),
+    interval: interval == null ? 200 : toInt(interval, 'interval'),
   };
 }
 
@@ -164,7 +164,7 @@ export async function cmd_nav(args = []) {
   }
 
   return await waitNavigation(targetId, {
-    timeout: timeout == null ? 10000 : parseInt(timeout, 'timeout'),
+    timeout: timeout == null ? 10000 : toInt(timeout, 'timeout'),
   });
 }
 
@@ -181,7 +181,7 @@ export async function cmd_load(args = []) {
   }
 
   return await waitLoad(targetId, {
-    timeout: timeout == null ? 10000 : parseInt(timeout, 'timeout'),
+    timeout: timeout == null ? 10000 : toInt(timeout, 'timeout'),
   });
 }
 
@@ -198,6 +198,6 @@ export async function cmd_dom(args = []) {
   }
 
   return await waitDom(targetId, {
-    timeout: timeout == null ? 10000 : parseInt(timeout, 'timeout'),
+    timeout: timeout == null ? 10000 : toInt(timeout, 'timeout'),
   });
 }
