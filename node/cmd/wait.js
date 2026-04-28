@@ -1,4 +1,5 @@
-import { toInt } from '../infra/core.js'
+import { toPositiveNumber, toInt } from '../infra/core.js'
+import { ERROR_CODE, CliError } from '../infra/protocol.js';
 import {
   waitSelector,
   waitVisible,
@@ -43,11 +44,14 @@ function getWaitOptions(timeout, interval) {
  *
  * 等 selector 出现。
  */
-export async function cmd_selector(ctx) {
-  const { args, options } = ctx;
+export async function cmd_selector(command) {
+  const { args, options } = command;
   const [targetId, selector] = args;
-  const timeout = Number(options.timeout ?? 10000);
-  const interval = Number(options.interval ?? 200);
+  const timeout = toPositiveNumber(options.timeout, 10000);
+  const interval = toPositiveNumber(options.interval, 200);
+
+  requireArg(targetId, 'missing targetId');
+  requireArg(expression, 'missing expression');
 
   if (!targetId) {
     throw new CliError(ERROR_CODE.INVALID_ARGS, 'missing targetId');
@@ -57,7 +61,7 @@ export async function cmd_selector(ctx) {
     throw new CliError(ERROR_CODE.INVALID_ARGS, 'missing selector');
   }
 
-  return await waitSelector(targetId, selector, getWaitOptions(timeout, interval));
+  return await waitSelector(targetId, selector, { timeout, interval });
 }
 
 /**

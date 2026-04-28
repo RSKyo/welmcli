@@ -1,6 +1,7 @@
 import { getClient } from './client.js';
 import { requireArg, requireEmitter } from './assert.js';
 import { okResult, failResult, evaluate } from './runtime.js';
+import { ensurePositiveNumber, sleep } from '../infra/core.js';
 
 /**
  * 等待相关能力。
@@ -16,23 +17,6 @@ import { okResult, failResult, evaluate } from './runtime.js';
  * - 等 JS 条件成立
  * - 等导航、DOMContentLoaded、load
  */
-
-/**
- * 将值转成正数；
- * 不合法时返回默认值。
- */
-export function toPositiveNumber(value, fallback) {
-  return typeof value === 'number' && !Number.isNaN(value) && value > 0
-    ? value
-    : fallback;
-}
-
-/**
- * 延迟一段时间。
- */
-function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
 
 /**
  * 判断轮询结果是否命中。
@@ -56,8 +40,8 @@ async function poll(targetId, expression, options = {}) {
   requireArg(targetId, 'missing targetId');
   requireArg(expression, 'missing expression');
 
-  const timeout = toPositiveNumber(options.timeout, 10000);
-  const interval = toPositiveNumber(options.interval, 200);
+  const timeout = ensurePositiveNumber(options.timeout, 10000);
+  const interval = ensurePositiveNumber(options.interval, 200);
 
   const start = Date.now();
   let result;
@@ -215,6 +199,10 @@ export function waitTextRegex(targetId, selector, expectedText, options = {}) {
   return waitTextByMode(targetId, selector, expectedText, 'regex', options);
 }
 
+export function waitText(targetId, selector, expectedText, options = {}) {
+  return waitTextByMode(targetId, selector, expectedText, options.mode || 'includes', options);
+}
+
 /**
  * 等某个 JS 表达式成立。
  */
@@ -225,6 +213,8 @@ export async function waitCondition(targetId, expression, options = {}) {
   return poll(targetId, expression, options);
 }
 
+export const waitFunction = waitCondition;
+
 /**
  * 等一次事件触发。
  */
@@ -233,7 +223,7 @@ function waitPageEvent(targetId, emitter, eventName, options = {}) {
   requireArg(eventName, 'missing eventName');
   requireEmitter(emitter);
 
-  const timeout = toPositiveNumber(options.timeout, 10000);
+  const timeout = ensurePositiveNumber(options.timeout, 10000);
   
   return new Promise(resolve => {
     let settled = false;

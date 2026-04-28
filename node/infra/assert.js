@@ -1,4 +1,4 @@
-import { ERROR_CODE, CliError } from '../infra/protocol.js';
+import { ERROR_CODE, CliError } from './protocol.js';
 
 export function requireArg(value, message) {
   // undefined | null | ''

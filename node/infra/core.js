@@ -8,11 +8,22 @@ export function normalizeUrl(url) {
   }
 }
 
+export function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 export function ensurePositiveNumber(value, fallback) {
-  return typeof value === 'number' && !Number.isNaN(value) && value > 0
+  return Number.isFinite(value) && value > 0
     ? value
     : fallback;
 }
+
+export function toPositiveNumber(value, fallback) {
+  if (value == null || value === '') return fallback;
+  const n = Number(value);
+  return ensurePositiveNumber(n, fallback);
+}
+
 
 export function toBool(value, defaultValue = true) {
   if (value == null || value === '') return defaultValue;
