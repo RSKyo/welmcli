@@ -29,14 +29,14 @@ function resolveCommand(argv, groupCommands) {
   const groupNames = Object.keys(groupCommands).join(', ');
 
   if (!group) {
-    throw new CliError(
+    throw new ClientError(
       ERROR_CODE.MISSING_CMD,
       `missing command group, expected one of: ${groupNames}`
     );
   }
 
   if (!Object.hasOwn(groupCommands, group)) {
-    throw new CliError(
+    throw new ClientError(
       ERROR_CODE.INVALID_CMD,
       `unknown command group: ${group}, expected one of: ${groupNames}`
     );
@@ -46,14 +46,14 @@ function resolveCommand(argv, groupCommands) {
   const cmdNames = Object.keys(commands).join(', ');
 
   if (!cmd) {
-    throw new CliError(
+    throw new ClientError(
       ERROR_CODE.MISSING_CMD,
       `missing command, expected one of: ${cmdNames}`
     );
   }
 
   if (!Object.hasOwn(commands, cmd)) {
-    throw new CliError(
+    throw new ClientError(
       ERROR_CODE.INVALID_CMD,
       `unknown command: ${cmd}, expected one of: ${cmdNames}`
     );

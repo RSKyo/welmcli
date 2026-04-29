@@ -1,4 +1,4 @@
-import { ERROR_CODE, CliError } from './protocol.js';
+import { ERROR_CODE, ClientError } from './protocol.js';
 
 export function normalizeUrl(url) {
   try {
@@ -30,14 +30,14 @@ export function toBool(value, defaultValue = true) {
     if (value === true || value === 'true' || value === '1') return true;
     if (value === false || value === 'false' || value === '0') return false;
   
-    throw new CliError(ERROR_CODE.INVALID_ARGS, `invalid boolean: ${value}`);
+    throw new ClientError(ERROR_CODE.INVALID_ARGS, `invalid boolean: ${value}`);
 }
 
 export function toInt(value, name) {
   const n = Number(value);
 
   if (!Number.isFinite(n)) {
-    throw new CliError(ERROR_CODE.INVALID_ARGS, `invalid ${name}`);
+    throw new ClientError(ERROR_CODE.INVALID_ARGS, `invalid ${name}`);
   }
 
   return n;
@@ -47,7 +47,7 @@ export function toFloat(value, name) {
   const n = Number(value);
 
   if (!Number.isFinite(n)) {
-    throw new CliError(ERROR_CODE.INVALID_ARGS, `invalid ${name}`);
+    throw new ClientError(ERROR_CODE.INVALID_ARGS, `invalid ${name}`);
   }
 
   return n;

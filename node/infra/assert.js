@@ -1,9 +1,9 @@
-import { ERROR_CODE, CliError } from './protocol.js';
+import { ERROR_CODE, ClientError } from './protocol.js';
 
 export function requireArg(value, message) {
   // undefined | null | ''
   if (value == null || value === '') {
-    throw new CliError(ERROR_CODE.MISSING_ARGS, message);
+    throw new ClientError(ERROR_CODE.MISSING_ARGS, message);
   }
 
   return value;
@@ -12,7 +12,7 @@ export function requireArg(value, message) {
 export function requireValue(value, message) {
   // undefined | null | '' | '   '
   if (value == null || value === '' || value.trim?.() === '') {
-    throw new CliError(ERROR_CODE.EMPTY_VALUE, message);
+    throw new ClientError(ERROR_CODE.EMPTY_VALUE, message);
   }
 
   return value;
@@ -24,7 +24,7 @@ export function requireEmitter(emitter, message = 'invalid emitter') {
     typeof emitter.on !== 'function' ||
     typeof emitter.off !== 'function'
   ) {
-    throw new CliError(ERROR_CODE.INVALID_ARGS, message);
+    throw new ClientError(ERROR_CODE.INVALID_ARGS, message);
   }
 
   return emitter;

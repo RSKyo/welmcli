@@ -1,13 +1,13 @@
-import { ERROR_CODE, CliError } from '../infra/protocol.js';
+import { ERROR_CODE, ClientError } from '../infra/protocol.js';
 import { evaluate } from '../cdp/runtime.js'
 
 export async function inputText(pageId, text, selector = '') {
   if (!pageId) {
-    throw new CliError(ERROR_CODE.MISSING_PAGE_ID, 'missing pageId');
+    throw new ClientError(ERROR_CODE.MISSING_PAGE_ID, 'missing pageId');
   }
 
   if (text == null) {
-    throw new CliError(ERROR_CODE.INVALID_ARGS, 'missing text');
+    throw new ClientError(ERROR_CODE.INVALID_ARGS, 'missing text');
   }
 
   const expression = buildInputExpression(text, selector);

@@ -1,4 +1,4 @@
-import { CliError } from '../core/error.js';
+import { ClientError } from '../core/error.js';
 import { ERROR_CODE } from '../core/error-code.js';
 import { getClient } from './client.js';
 import { requireArg } from './assert.js';
@@ -192,7 +192,7 @@ export async function captureFullPageScreenshot(targetId, options = {}) {
   const size = metrics.cssContentSize || metrics.contentSize;
 
   if (!size) {
-    throw new CliError(ERROR_CODE.INTERNAL_ERROR, 'failed to get page content size');
+    throw new ClientError(ERROR_CODE.INTERNAL_ERROR, 'failed to get page content size');
   }
 
   return captureScreenshot(targetId, {
@@ -240,7 +240,7 @@ export async function getPageContent(targetId) {
   const frameTree = await getResourceTree(targetId);
 
   if (!frameTree?.frame?.id || !frameTree?.frame?.url) {
-    throw new CliError(ERROR_CODE.INTERNAL_ERROR, 'failed to resolve main frame');
+    throw new ClientError(ERROR_CODE.INTERNAL_ERROR, 'failed to resolve main frame');
   }
 
   const res = await getResourceContent(

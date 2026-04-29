@@ -1,4 +1,4 @@
-import { CliError } from '../core/error.js';
+import { ClientError } from '../core/error.js';
 import { ERROR_CODE } from '../core/error-code.js';
 import { getClient } from './client.js';
 import {
@@ -28,25 +28,25 @@ import {
 
 function ensureTargetId(targetId) {
   if (!targetId) {
-    throw new CliError(ERROR_CODE.INVALID_ARGS, 'missing targetId');
+    throw new ClientError(ERROR_CODE.INVALID_ARGS, 'missing targetId');
   }
 }
 
 function ensureSelector(selector) {
   if (!selector) {
-    throw new CliError(ERROR_CODE.INVALID_ARGS, 'missing selector');
+    throw new ClientError(ERROR_CODE.INVALID_ARGS, 'missing selector');
   }
 }
 
 function ensureText(text) {
   if (text == null) {
-    throw new CliError(ERROR_CODE.INVALID_ARGS, 'missing text');
+    throw new ClientError(ERROR_CODE.INVALID_ARGS, 'missing text');
   }
 }
 
 function ensureKey(key) {
   if (!key) {
-    throw new CliError(ERROR_CODE.INVALID_ARGS, 'missing key');
+    throw new ClientError(ERROR_CODE.INVALID_ARGS, 'missing key');
   }
 }
 
@@ -69,7 +69,7 @@ async function runtimeEvalValue(targetId, expression) {
   });
 
   if (res.exceptionDetails) {
-    throw new CliError(
+    throw new ClientError(
       ERROR_CODE.INTERNAL_ERROR,
       'runtime evaluate failed',
       { exceptionDetails: res.exceptionDetails },
@@ -202,7 +202,7 @@ export async function scrollIntoView(targetId, selector, options = {}) {
   const ok = await runtimeEvalValue(targetId, expression);
 
   if (!ok) {
-    throw new CliError(ERROR_CODE.INTERNAL_ERROR, 'failed to scroll element into view');
+    throw new ClientError(ERROR_CODE.INTERNAL_ERROR, 'failed to scroll element into view');
   }
 
   return true;
@@ -234,7 +234,7 @@ export async function getText(targetId, selector, options = {}) {
   const value = await runtimeEvalValue(targetId, expression);
 
   if (!value) {
-    throw new CliError(ERROR_CODE.INTERNAL_ERROR, 'failed to get text');
+    throw new ClientError(ERROR_CODE.INTERNAL_ERROR, 'failed to get text');
   }
 
   return options.useTextContent ? value.textContent : value.innerText;
@@ -266,7 +266,7 @@ export async function getHtml(targetId, selector, options = {}) {
   const value = await runtimeEvalValue(targetId, expression);
 
   if (!value) {
-    throw new CliError(ERROR_CODE.INTERNAL_ERROR, 'failed to get html');
+    throw new ClientError(ERROR_CODE.INTERNAL_ERROR, 'failed to get html');
   }
 
   return options.inner ? value.innerHTML : value.outerHTML;
@@ -326,7 +326,7 @@ export async function click(targetId, selector, options = {}) {
   const box = await getElementBox(targetId, selector);
 
   if (!box || box.width <= 0 || box.height <= 0) {
-    throw new CliError(ERROR_CODE.INTERNAL_ERROR, 'failed to resolve clickable box');
+    throw new ClientError(ERROR_CODE.INTERNAL_ERROR, 'failed to resolve clickable box');
   }
 
   const { Input } = await getActionClient(targetId);
@@ -381,13 +381,13 @@ export async function type(targetId, selector, text, options = {}) {
   const focused = await focusElement(targetId, selector);
 
   if (!focused) {
-    throw new CliError(ERROR_CODE.INTERNAL_ERROR, 'failed to focus element');
+    throw new ClientError(ERROR_CODE.INTERNAL_ERROR, 'failed to focus element');
   }
 
   if (options.clear) {
     const cleared = await clearElementValue(targetId, selector);
     if (!cleared) {
-      throw new CliError(ERROR_CODE.INTERNAL_ERROR, 'failed to clear element value');
+      throw new ClientError(ERROR_CODE.INTERNAL_ERROR, 'failed to clear element value');
     }
   }
 

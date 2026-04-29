@@ -63,11 +63,11 @@ export async function cmd_goto(args = []) {
   const [targetId, url] = args;
 
   if (!targetId) {
-    throw new CliError(ERROR_CODE.INVALID_ARGS, 'missing targetId');
+    throw new ClientError(ERROR_CODE.INVALID_ARGS, 'missing targetId');
   }
 
   if (!url) {
-    throw new CliError(ERROR_CODE.INVALID_ARGS, 'missing url');
+    throw new ClientError(ERROR_CODE.INVALID_ARGS, 'missing url');
   }
 
   return await navigatePage(targetId, url);
@@ -91,7 +91,7 @@ export async function cmd_reload(args = []) {
   const [targetId, ignoreCache] = args;
 
   if (!targetId) {
-    throw new CliError(ERROR_CODE.INVALID_ARGS, 'missing targetId');
+    throw new ClientError(ERROR_CODE.INVALID_ARGS, 'missing targetId');
   }
 
   await reloadPage(targetId, {
@@ -114,7 +114,7 @@ export async function cmd_stop(args = []) {
   const [targetId] = args;
 
   if (!targetId) {
-    throw new CliError(ERROR_CODE.INVALID_ARGS, 'missing targetId');
+    throw new ClientError(ERROR_CODE.INVALID_ARGS, 'missing targetId');
   }
 
   await stopLoadingPage(targetId);
@@ -138,7 +138,7 @@ export async function cmd_front(args = []) {
   const [targetId] = args;
 
   if (!targetId) {
-    throw new CliError(ERROR_CODE.INVALID_ARGS, 'missing targetId');
+    throw new ClientError(ERROR_CODE.INVALID_ARGS, 'missing targetId');
   }
 
   await bringPageToFront(targetId);
@@ -162,7 +162,7 @@ export async function cmd_frames(args = []) {
   const [targetId] = args;
 
   if (!targetId) {
-    throw new CliError(ERROR_CODE.INVALID_ARGS, 'missing targetId');
+    throw new ClientError(ERROR_CODE.INVALID_ARGS, 'missing targetId');
   }
 
   return await getFrameTree(targetId);
@@ -185,7 +185,7 @@ export async function cmd_resources(args = []) {
   const [targetId] = args;
 
   if (!targetId) {
-    throw new CliError(ERROR_CODE.INVALID_ARGS, 'missing targetId');
+    throw new ClientError(ERROR_CODE.INVALID_ARGS, 'missing targetId');
   }
 
   return await getResourceTree(targetId);
@@ -215,7 +215,7 @@ export async function cmd_metrics(args = []) {
   const [targetId] = args;
 
   if (!targetId) {
-    throw new CliError(ERROR_CODE.INVALID_ARGS, 'missing targetId');
+    throw new ClientError(ERROR_CODE.INVALID_ARGS, 'missing targetId');
   }
 
   return await getLayoutMetrics(targetId);
@@ -239,7 +239,7 @@ export async function cmd_html(args = []) {
   const [targetId] = args;
 
   if (!targetId) {
-    throw new CliError(ERROR_CODE.INVALID_ARGS, 'missing targetId');
+    throw new ClientError(ERROR_CODE.INVALID_ARGS, 'missing targetId');
   }
 
   return await getPageContent(targetId);
@@ -264,7 +264,7 @@ export async function cmd_wait_load(args = []) {
   const [targetId, timeout] = args;
 
   if (!targetId) {
-    throw new CliError(ERROR_CODE.INVALID_ARGS, 'missing targetId');
+    throw new ClientError(ERROR_CODE.INVALID_ARGS, 'missing targetId');
   }
 
   return await waitPageLoad(
@@ -292,7 +292,7 @@ export async function cmd_wait_dom(args = []) {
   const [targetId, timeout] = args;
 
   if (!targetId) {
-    throw new CliError(ERROR_CODE.INVALID_ARGS, 'missing targetId');
+    throw new ClientError(ERROR_CODE.INVALID_ARGS, 'missing targetId');
   }
 
   return await waitDomContentLoaded(
@@ -322,7 +322,7 @@ export async function cmd_screenshot(args = []) {
   const [targetId, format, quality] = args;
 
   if (!targetId) {
-    throw new CliError(ERROR_CODE.INVALID_ARGS, 'missing targetId');
+    throw new ClientError(ERROR_CODE.INVALID_ARGS, 'missing targetId');
   }
 
   return await captureScreenshot(targetId, {
@@ -352,7 +352,7 @@ export async function cmd_fullshot(args = []) {
   const [targetId, format, quality] = args;
 
   if (!targetId) {
-    throw new CliError(ERROR_CODE.INVALID_ARGS, 'missing targetId');
+    throw new ClientError(ERROR_CODE.INVALID_ARGS, 'missing targetId');
   }
 
   return await captureFullPageScreenshot(targetId, {

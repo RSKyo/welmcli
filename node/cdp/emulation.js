@@ -1,4 +1,4 @@
-import { CliError } from '../core/error.js';
+import { ClientError } from '../core/error.js';
 import { ERROR_CODE } from '../core/error-code.js';
 import { getClient } from './client.js';
 
@@ -7,7 +7,7 @@ import { getClient } from './client.js';
  */
 export async function setDeviceMetrics(targetId, options = {}) {
   if (!targetId) {
-    throw new CliError(ERROR_CODE.INVALID_ARGS, 'missing targetId');
+    throw new ClientError(ERROR_CODE.INVALID_ARGS, 'missing targetId');
   }
 
   const {
@@ -26,7 +26,7 @@ export async function setDeviceMetrics(targetId, options = {}) {
   } = options;
 
   if (!width || !height) {
-    throw new CliError(ERROR_CODE.INVALID_ARGS, 'missing width or height');
+    throw new ClientError(ERROR_CODE.INVALID_ARGS, 'missing width or height');
   }
 
   const client = await getClient(targetId);
@@ -79,7 +79,7 @@ export async function setDeviceMetrics(targetId, options = {}) {
  */
 export async function clearDeviceMetrics(targetId) {
   if (!targetId) {
-    throw new CliError(ERROR_CODE.INVALID_ARGS, 'missing targetId');
+    throw new ClientError(ERROR_CODE.INVALID_ARGS, 'missing targetId');
   }
 
   const client = await getClient(targetId);
@@ -94,11 +94,11 @@ export async function clearDeviceMetrics(targetId) {
  */
 export async function setViewport(targetId, width, height, options = {}) {
   if (!targetId) {
-    throw new CliError(ERROR_CODE.INVALID_ARGS, 'missing targetId');
+    throw new ClientError(ERROR_CODE.INVALID_ARGS, 'missing targetId');
   }
 
   if (!width || !height) {
-    throw new CliError(ERROR_CODE.INVALID_ARGS, 'missing width or height');
+    throw new ClientError(ERROR_CODE.INVALID_ARGS, 'missing width or height');
   }
 
   return setDeviceMetrics(targetId, {
@@ -145,11 +145,11 @@ export async function setMobileViewport(targetId, width = 390, height = 844, opt
  */
 export async function setUserAgent(targetId, userAgent, options = {}) {
   if (!targetId) {
-    throw new CliError(ERROR_CODE.INVALID_ARGS, 'missing targetId');
+    throw new ClientError(ERROR_CODE.INVALID_ARGS, 'missing targetId');
   }
 
   if (!userAgent) {
-    throw new CliError(ERROR_CODE.INVALID_ARGS, 'missing userAgent');
+    throw new ClientError(ERROR_CODE.INVALID_ARGS, 'missing userAgent');
   }
 
   const client = await getClient(targetId);
@@ -203,7 +203,7 @@ export async function setMobileUserAgent(targetId, userAgent) {
  */
 export async function setTouchEmulation(targetId, enabled = true, maxTouchPoints = 1) {
   if (!targetId) {
-    throw new CliError(ERROR_CODE.INVALID_ARGS, 'missing targetId');
+    throw new ClientError(ERROR_CODE.INVALID_ARGS, 'missing targetId');
   }
 
   const client = await getClient(targetId);
@@ -227,11 +227,11 @@ export async function clearTouchEmulation(targetId) {
  */
 export async function setTimezone(targetId, timezoneId) {
   if (!targetId) {
-    throw new CliError(ERROR_CODE.INVALID_ARGS, 'missing targetId');
+    throw new ClientError(ERROR_CODE.INVALID_ARGS, 'missing targetId');
   }
 
   if (!timezoneId) {
-    throw new CliError(ERROR_CODE.INVALID_ARGS, 'missing timezoneId');
+    throw new ClientError(ERROR_CODE.INVALID_ARGS, 'missing timezoneId');
   }
 
   const client = await getClient(targetId);
@@ -246,7 +246,7 @@ export async function setTimezone(targetId, timezoneId) {
  */
 export async function clearTimezone(targetId) {
   if (!targetId) {
-    throw new CliError(ERROR_CODE.INVALID_ARGS, 'missing targetId');
+    throw new ClientError(ERROR_CODE.INVALID_ARGS, 'missing targetId');
   }
 
   const client = await getClient(targetId);
@@ -260,11 +260,11 @@ export async function clearTimezone(targetId) {
  */
 export async function setGeolocation(targetId, latitude, longitude, accuracy = 100) {
   if (!targetId) {
-    throw new CliError(ERROR_CODE.INVALID_ARGS, 'missing targetId');
+    throw new ClientError(ERROR_CODE.INVALID_ARGS, 'missing targetId');
   }
 
   if (latitude == null || longitude == null) {
-    throw new CliError(ERROR_CODE.INVALID_ARGS, 'missing latitude or longitude');
+    throw new ClientError(ERROR_CODE.INVALID_ARGS, 'missing latitude or longitude');
   }
 
   const client = await getClient(targetId);
@@ -283,7 +283,7 @@ export async function setGeolocation(targetId, latitude, longitude, accuracy = 1
  */
 export async function clearGeolocation(targetId) {
   if (!targetId) {
-    throw new CliError(ERROR_CODE.INVALID_ARGS, 'missing targetId');
+    throw new ClientError(ERROR_CODE.INVALID_ARGS, 'missing targetId');
   }
 
   const client = await getClient(targetId);
@@ -303,7 +303,7 @@ export async function clearGeolocation(targetId) {
  */
 export async function setMediaFeatures(targetId, features = []) {
   if (!targetId) {
-    throw new CliError(ERROR_CODE.INVALID_ARGS, 'missing targetId');
+    throw new ClientError(ERROR_CODE.INVALID_ARGS, 'missing targetId');
   }
 
   const client = await getClient(targetId);
@@ -372,7 +372,7 @@ export async function emulateDesktop(targetId, options = {}) {
  */
 export async function clearEmulation(targetId) {
   if (!targetId) {
-    throw new CliError(ERROR_CODE.INVALID_ARGS, 'missing targetId');
+    throw new ClientError(ERROR_CODE.INVALID_ARGS, 'missing targetId');
   }
 
   await clearDeviceMetrics(targetId);

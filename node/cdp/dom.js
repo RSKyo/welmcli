@@ -3,14 +3,14 @@
 // ========================
 
 import { getClient } from './client.js';
-import { ERROR_CODE, CliError } from '../infra/protocol.js';
+import { ERROR_CODE, ClientError } from '../infra/protocol.js';
 
 /**
  * 获取文档根节点
  */
 export async function getDocument(targetId, options = {}) {
   if (!targetId) {
-    throw new CliError(ERROR_CODE.INVALID_ARGS, 'missing targetId');
+    throw new ClientError(ERROR_CODE.INVALID_ARGS, 'missing targetId');
   }
 
   const client = await getClient(targetId);
@@ -29,15 +29,15 @@ export async function getDocument(targetId, options = {}) {
  */
 export async function querySelector(targetId, nodeId, selector) {
   if (!targetId) {
-    throw new CliError(ERROR_CODE.INVALID_ARGS, 'missing targetId');
+    throw new ClientError(ERROR_CODE.INVALID_ARGS, 'missing targetId');
   }
 
   if (!nodeId) {
-    throw new CliError(ERROR_CODE.INVALID_ARGS, 'missing nodeId');
+    throw new ClientError(ERROR_CODE.INVALID_ARGS, 'missing nodeId');
   }
 
   if (!selector) {
-    throw new CliError(ERROR_CODE.INVALID_ARGS, 'missing selector');
+    throw new ClientError(ERROR_CODE.INVALID_ARGS, 'missing selector');
   }
 
   const client = await getClient(targetId);
@@ -56,15 +56,15 @@ export async function querySelector(targetId, nodeId, selector) {
  */
 export async function querySelectorAll(targetId, nodeId, selector) {
   if (!targetId) {
-    throw new CliError(ERROR_CODE.INVALID_ARGS, 'missing targetId');
+    throw new ClientError(ERROR_CODE.INVALID_ARGS, 'missing targetId');
   }
 
   if (!nodeId) {
-    throw new CliError(ERROR_CODE.INVALID_ARGS, 'missing nodeId');
+    throw new ClientError(ERROR_CODE.INVALID_ARGS, 'missing nodeId');
   }
 
   if (!selector) {
-    throw new CliError(ERROR_CODE.INVALID_ARGS, 'missing selector');
+    throw new ClientError(ERROR_CODE.INVALID_ARGS, 'missing selector');
   }
 
   const client = await getClient(targetId);
@@ -83,11 +83,11 @@ export async function querySelectorAll(targetId, nodeId, selector) {
  */
 export async function queryDocumentSelector(targetId, selector) {
   if (!targetId) {
-    throw new CliError(ERROR_CODE.INVALID_ARGS, 'missing targetId');
+    throw new ClientError(ERROR_CODE.INVALID_ARGS, 'missing targetId');
   }
 
   if (!selector) {
-    throw new CliError(ERROR_CODE.INVALID_ARGS, 'missing selector');
+    throw new ClientError(ERROR_CODE.INVALID_ARGS, 'missing selector');
   }
 
   const root = await getDocument(targetId);
@@ -99,11 +99,11 @@ export async function queryDocumentSelector(targetId, selector) {
  */
 export async function queryDocumentSelectorAll(targetId, selector) {
   if (!targetId) {
-    throw new CliError(ERROR_CODE.INVALID_ARGS, 'missing targetId');
+    throw new ClientError(ERROR_CODE.INVALID_ARGS, 'missing targetId');
   }
 
   if (!selector) {
-    throw new CliError(ERROR_CODE.INVALID_ARGS, 'missing selector');
+    throw new ClientError(ERROR_CODE.INVALID_ARGS, 'missing selector');
   }
 
   const root = await getDocument(targetId);
@@ -115,7 +115,7 @@ export async function queryDocumentSelectorAll(targetId, selector) {
  */
 export async function describeNode(targetId, options = {}) {
   if (!targetId) {
-    throw new CliError(ERROR_CODE.INVALID_ARGS, 'missing targetId');
+    throw new ClientError(ERROR_CODE.INVALID_ARGS, 'missing targetId');
   }
 
   const payload = {};
@@ -127,7 +127,7 @@ export async function describeNode(targetId, options = {}) {
   if (options.pierce != null) payload.pierce = options.pierce;
 
   if (!payload.nodeId && !payload.backendNodeId && !payload.objectId) {
-    throw new CliError(ERROR_CODE.INVALID_ARGS, 'missing node reference');
+    throw new ClientError(ERROR_CODE.INVALID_ARGS, 'missing node reference');
   }
 
   const client = await getClient(targetId);
@@ -143,11 +143,11 @@ export async function describeNode(targetId, options = {}) {
  */
 export async function getAttributes(targetId, nodeId) {
   if (!targetId) {
-    throw new CliError(ERROR_CODE.INVALID_ARGS, 'missing targetId');
+    throw new ClientError(ERROR_CODE.INVALID_ARGS, 'missing targetId');
   }
 
   if (!nodeId) {
-    throw new CliError(ERROR_CODE.INVALID_ARGS, 'missing nodeId');
+    throw new ClientError(ERROR_CODE.INVALID_ARGS, 'missing nodeId');
   }
 
   const client = await getClient(targetId);
@@ -177,7 +177,7 @@ export function attributesToObject(attributes = []) {
  */
 export async function getOuterHTML(targetId, options = {}) {
   if (!targetId) {
-    throw new CliError(ERROR_CODE.INVALID_ARGS, 'missing targetId');
+    throw new ClientError(ERROR_CODE.INVALID_ARGS, 'missing targetId');
   }
 
   const payload = {};
@@ -187,7 +187,7 @@ export async function getOuterHTML(targetId, options = {}) {
   if (options.objectId) payload.objectId = options.objectId;
 
   if (!payload.nodeId && !payload.backendNodeId && !payload.objectId) {
-    throw new CliError(ERROR_CODE.INVALID_ARGS, 'missing node reference');
+    throw new ClientError(ERROR_CODE.INVALID_ARGS, 'missing node reference');
   }
 
   const client = await getClient(targetId);
@@ -202,7 +202,7 @@ export async function getOuterHTML(targetId, options = {}) {
  */
 export async function getBoxModel(targetId, options = {}) {
   if (!targetId) {
-    throw new CliError(ERROR_CODE.INVALID_ARGS, 'missing targetId');
+    throw new ClientError(ERROR_CODE.INVALID_ARGS, 'missing targetId');
   }
 
   const payload = {};
@@ -212,7 +212,7 @@ export async function getBoxModel(targetId, options = {}) {
   if (options.objectId) payload.objectId = options.objectId;
 
   if (!payload.nodeId && !payload.backendNodeId && !payload.objectId) {
-    throw new CliError(ERROR_CODE.INVALID_ARGS, 'missing node reference');
+    throw new ClientError(ERROR_CODE.INVALID_ARGS, 'missing node reference');
   }
 
   const client = await getClient(targetId);
@@ -227,11 +227,11 @@ export async function getBoxModel(targetId, options = {}) {
  */
 export async function resolveNode(targetId, nodeId) {
   if (!targetId) {
-    throw new CliError(ERROR_CODE.INVALID_ARGS, 'missing targetId');
+    throw new ClientError(ERROR_CODE.INVALID_ARGS, 'missing targetId');
   }
 
   if (!nodeId) {
-    throw new CliError(ERROR_CODE.INVALID_ARGS, 'missing nodeId');
+    throw new ClientError(ERROR_CODE.INVALID_ARGS, 'missing nodeId');
   }
 
   const client = await getClient(targetId);
@@ -246,11 +246,11 @@ export async function resolveNode(targetId, nodeId) {
  */
 export async function requestNode(targetId, objectId) {
   if (!targetId) {
-    throw new CliError(ERROR_CODE.INVALID_ARGS, 'missing targetId');
+    throw new ClientError(ERROR_CODE.INVALID_ARGS, 'missing targetId');
   }
 
   if (!objectId) {
-    throw new CliError(ERROR_CODE.INVALID_ARGS, 'missing objectId');
+    throw new ClientError(ERROR_CODE.INVALID_ARGS, 'missing objectId');
   }
 
   const client = await getClient(targetId);
@@ -265,11 +265,11 @@ export async function requestNode(targetId, objectId) {
  */
 export async function focusNode(targetId, nodeId) {
   if (!targetId) {
-    throw new CliError(ERROR_CODE.INVALID_ARGS, 'missing targetId');
+    throw new ClientError(ERROR_CODE.INVALID_ARGS, 'missing targetId');
   }
 
   if (!nodeId) {
-    throw new CliError(ERROR_CODE.INVALID_ARGS, 'missing nodeId');
+    throw new ClientError(ERROR_CODE.INVALID_ARGS, 'missing nodeId');
   }
 
   const client = await getClient(targetId);
@@ -284,17 +284,17 @@ export async function focusNode(targetId, nodeId) {
  */
 export async function getNodeCenter(targetId, nodeId) {
   if (!targetId) {
-    throw new CliError(ERROR_CODE.INVALID_ARGS, 'missing targetId');
+    throw new ClientError(ERROR_CODE.INVALID_ARGS, 'missing targetId');
   }
 
   if (!nodeId) {
-    throw new CliError(ERROR_CODE.INVALID_ARGS, 'missing nodeId');
+    throw new ClientError(ERROR_CODE.INVALID_ARGS, 'missing nodeId');
   }
 
   const model = await getBoxModel(targetId, { nodeId });
 
   if (!model || !Array.isArray(model.content) || model.content.length < 8) {
-    throw new CliError(ERROR_CODE.INTERNAL_ERROR, 'failed to get box model');
+    throw new ClientError(ERROR_CODE.INTERNAL_ERROR, 'failed to get box model');
   }
 
   const quad = model.content;

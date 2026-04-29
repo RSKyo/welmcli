@@ -4,7 +4,7 @@
 
 import CDP from 'chrome-remote-interface'
 import { HOST, PORT } from '../infra/env.js'
-import { ERROR_CODE, CliError } from '../infra/protocol.js';
+import { ERROR_CODE, ClientError } from '../infra/protocol.js';
 
 /**
  * targetId -> client
@@ -16,7 +16,7 @@ const CLIENT_POOL = new Map();
  */
 export async function getClient(targetId) {
   if (!targetId) {
-    throw new CliError(ERROR_CODE.MISSING_TARGET_ID, 'missing targetId');
+    throw new ClientError(ERROR_CODE.MISSING_TARGET_ID, 'missing targetId');
   }
 
   if (CLIENT_POOL.has(targetId)) {

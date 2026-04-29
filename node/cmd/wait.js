@@ -1,5 +1,5 @@
 import { toPositiveNumber, toInt } from '../infra/core.js'
-import { ERROR_CODE, CliError } from '../infra/protocol.js';
+import { ERROR_CODE, ClientError } from '../infra/protocol.js';
 import {
   waitSelector,
   waitVisible,
@@ -54,11 +54,11 @@ export async function cmd_selector(command) {
   requireArg(expression, 'missing expression');
 
   if (!targetId) {
-    throw new CliError(ERROR_CODE.INVALID_ARGS, 'missing targetId');
+    throw new ClientError(ERROR_CODE.INVALID_ARGS, 'missing targetId');
   }
 
   if (!selector) {
-    throw new CliError(ERROR_CODE.INVALID_ARGS, 'missing selector');
+    throw new ClientError(ERROR_CODE.INVALID_ARGS, 'missing selector');
   }
 
   return await waitSelector(targetId, selector, { timeout, interval });
@@ -73,11 +73,11 @@ export async function cmd_visible(args = []) {
   const [targetId, selector, timeout, interval] = args;
 
   if (!targetId) {
-    throw new CliError(ERROR_CODE.INVALID_ARGS, 'missing targetId');
+    throw new ClientError(ERROR_CODE.INVALID_ARGS, 'missing targetId');
   }
 
   if (!selector) {
-    throw new CliError(ERROR_CODE.INVALID_ARGS, 'missing selector');
+    throw new ClientError(ERROR_CODE.INVALID_ARGS, 'missing selector');
   }
 
   return await waitVisible(targetId, selector, getWaitOptions(timeout, interval));
@@ -92,11 +92,11 @@ export async function cmd_clickable(args = []) {
   const [targetId, selector, timeout, interval] = args;
 
   if (!targetId) {
-    throw new CliError(ERROR_CODE.INVALID_ARGS, 'missing targetId');
+    throw new ClientError(ERROR_CODE.INVALID_ARGS, 'missing targetId');
   }
 
   if (!selector) {
-    throw new CliError(ERROR_CODE.INVALID_ARGS, 'missing selector');
+    throw new ClientError(ERROR_CODE.INVALID_ARGS, 'missing selector');
   }
 
   return await waitClickable(targetId, selector, getWaitOptions(timeout, interval));
@@ -114,15 +114,15 @@ export async function cmd_text(args = []) {
   const [targetId, selector, expectedText, mode, timeout, interval] = args;
 
   if (!targetId) {
-    throw new CliError(ERROR_CODE.INVALID_ARGS, 'missing targetId');
+    throw new ClientError(ERROR_CODE.INVALID_ARGS, 'missing targetId');
   }
 
   if (!selector) {
-    throw new CliError(ERROR_CODE.INVALID_ARGS, 'missing selector');
+    throw new ClientError(ERROR_CODE.INVALID_ARGS, 'missing selector');
   }
 
   if (expectedText == null || expectedText === '') {
-    throw new CliError(ERROR_CODE.INVALID_ARGS, 'missing expectedText');
+    throw new ClientError(ERROR_CODE.INVALID_ARGS, 'missing expectedText');
   }
 
   return await waitText(targetId, selector, expectedText, {
@@ -145,11 +145,11 @@ export async function cmd_fn(args = []) {
   const [targetId, expression, timeout, interval] = args;
 
   if (!targetId) {
-    throw new CliError(ERROR_CODE.INVALID_ARGS, 'missing targetId');
+    throw new ClientError(ERROR_CODE.INVALID_ARGS, 'missing targetId');
   }
 
   if (!expression) {
-    throw new CliError(ERROR_CODE.INVALID_ARGS, 'missing expression');
+    throw new ClientError(ERROR_CODE.INVALID_ARGS, 'missing expression');
   }
 
   return await waitFunction(targetId, expression, getWaitOptions(timeout, interval));
@@ -164,7 +164,7 @@ export async function cmd_nav(args = []) {
   const [targetId, timeout] = args;
 
   if (!targetId) {
-    throw new CliError(ERROR_CODE.INVALID_ARGS, 'missing targetId');
+    throw new ClientError(ERROR_CODE.INVALID_ARGS, 'missing targetId');
   }
 
   return await waitNavigation(targetId, {
@@ -181,7 +181,7 @@ export async function cmd_load(args = []) {
   const [targetId, timeout] = args;
 
   if (!targetId) {
-    throw new CliError(ERROR_CODE.INVALID_ARGS, 'missing targetId');
+    throw new ClientError(ERROR_CODE.INVALID_ARGS, 'missing targetId');
   }
 
   return await waitLoad(targetId, {
@@ -198,7 +198,7 @@ export async function cmd_dom(args = []) {
   const [targetId, timeout] = args;
 
   if (!targetId) {
-    throw new CliError(ERROR_CODE.INVALID_ARGS, 'missing targetId');
+    throw new ClientError(ERROR_CODE.INVALID_ARGS, 'missing targetId');
   }
 
   return await waitDom(targetId, {
